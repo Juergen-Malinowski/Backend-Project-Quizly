@@ -22,6 +22,8 @@ class Quiz(models.Model):
         """Defines default ordering for quizzes."""
 
         ordering = ['-created_at']
+        verbose_name = 'Quiz'
+        verbose_name_plural = 'Quizze'
 
     def __str__(self):
         """Returns the quiz title for admin and shell output."""
@@ -49,6 +51,9 @@ class QuizQuestion(models.Model):
         """Defines question ordering and unique positions per quiz."""
 
         ordering = ['position']
+        verbose_name = 'Quizfrage'
+        verbose_name_plural = 'Quizfragen'
+
         constraints = [
             models.UniqueConstraint(
                 fields=['quiz', 'position'],

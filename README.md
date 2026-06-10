@@ -100,6 +100,7 @@ python manage.py createsuperuser
   * [Django User Model](#django-user-model)
   * [Quiz Model](#quiz-model)
   * [QuizQuestion Model](#quizquestion-model)
+* [Django Admin](#django-admin)
 * [Current Implementation Status](#current-implementation-status)
 
 ## External Requirements
@@ -235,6 +236,45 @@ Admin integration:
 * QuizQuestion objects must be editable through the Django admin
 * QuizQuestion objects should be manageable directly inside the related Quiz admin page through Django admin inlines
 
+## Django Admin
+
+The Django admin is configured for managing Quizly's database content during development and review.
+
+Admin areas currently available:
+
+* Django users
+* Django groups
+* quiz management
+* JWT token blacklist data
+
+### Quiz Admin
+
+Purpose:
+
+* allows staff users to view and manage generated quizzes
+* displays quiz ownership, title, video URL and timestamps
+* supports searching by title, description, video URL, username and email
+* supports filtering by creation and update timestamps
+
+Related objects:
+
+* QuizQuestion objects are editable directly inside the related Quiz admin page through Django admin inlines
+
+### QuizQuestion Admin
+
+Purpose:
+
+* allows staff users to view and manage generated quiz questions
+* displays the related quiz, question position, question title, answer and creation timestamp
+* supports searching by quiz title, question title and answer
+* supports filtering by quiz, creation timestamp and update timestamp
+
+Admin naming:
+
+* the quiz app is displayed as `Quizverwaltung`
+* the quiz model is displayed as `Quiz` / `Quizze`
+* the quiz question model is displayed as `Quizfrage` / `Quizfragen`
+
 ## Current Implementation Status
 
 The backend project currently includes the basic Django and Django REST Framework structure.
@@ -252,3 +292,7 @@ Implemented so far:
 * `Quiz` model for generated user quizzes
 * `QuizQuestion` model for generated quiz questions
 * initial database migrations for quiz models
+* * Django admin configuration for `Quiz`
+* Django admin configuration for `QuizQuestion`
+* inline editing of quiz questions inside the related quiz admin page
+* German admin labels for quiz-related admin sections
