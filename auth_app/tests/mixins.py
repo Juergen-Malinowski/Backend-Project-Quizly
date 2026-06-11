@@ -3,6 +3,8 @@
 from django.contrib.auth import get_user_model
 from django.urls import reverse
 
+from rest_framework_simplejwt.tokens import RefreshToken
+
 
 class AuthTestMixin:
     """Provides shared helpers for authentication endpoint tests."""
@@ -17,6 +19,18 @@ class AuthTestMixin:
         """Returns the login endpoint URL."""
 
         return reverse('login')
+
+
+    def get_logout_url(self):
+        """Returns the logout endpoint URL."""
+
+        return reverse('logout')
+
+
+    def get_token_refresh_url(self):
+        """Returns the token refresh endpoint URL."""
+
+        return reverse('token-refresh')
 
 
     def get_user_count(self):
@@ -53,3 +67,15 @@ class AuthTestMixin:
             'username': 'test_user',
             'password': 'SecurePass123!',
         }
+
+
+    def authenticate_with_cookie_tokens(self):
+        """Adds valid access and refresh token cookies to the test client."""
+
+        user = self.create_test_user()
+        refresh = RefreshToken.for_user(user)
+
+        self.client.cookies['access_token'] = str(refresh.access_token)
+        self.client.cookies['refresh_token'] = str(refresh)
+
+        return refresh

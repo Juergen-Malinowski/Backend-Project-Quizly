@@ -90,19 +90,38 @@ python manage.py runserver
 
 ## Table of Contents
 
-* [External Requirements](#external-requirements)
-
-  * [Python AI and video dependencies](#python-ai-and-video-dependencies)
-  * [Install FFmpeg on Windows](#install-ffmpeg-on-windows)
-  * [Install FFmpeg on macOS](#install-ffmpeg-on-macos)
-* [Project Structure](#project-structure)
-* [Database Models](#database-models)
-
-  * [Django User Model](#django-user-model)
-  * [Quiz Model](#quiz-model)
-  * [QuizQuestion Model](#quizquestion-model)
-* [Django Admin](#django-admin)
-* [Current Implementation Status](#current-implementation-status)
+- [Quizly Backend](#quizly-backend)
+  - [Setup](#setup)
+    - [Clone repository](#clone-repository)
+    - [Open backend folder](#open-backend-folder)
+    - [Create virtual environment](#create-virtual-environment)
+    - [Activate virtual environment (Windows)](#activate-virtual-environment-windows)
+    - [Activate virtual environment (Linux / Mac)](#activate-virtual-environment-linux--mac)
+    - [Install dependencies](#install-dependencies)
+    - [Create local environment file (Windows)](#create-local-environment-file-windows)
+    - [Create local environment file (Linux / Mac)](#create-local-environment-file-linux--mac)
+    - [Generate a Django SECRET\_KEY](#generate-a-django-secret_key)
+    - [Insert SECRET\_KEY into .env](#insert-secret_key-into-env)
+    - [Run migrations](#run-migrations)
+    - [Create admin user](#create-admin-user)
+    - [Start development server](#start-development-server)
+  - [Table of Contents](#table-of-contents)
+  - [External Requirements](#external-requirements)
+    - [Python AI and video dependencies](#python-ai-and-video-dependencies)
+    - [Install FFmpeg on Windows](#install-ffmpeg-on-windows)
+    - [Install FFmpeg on macOS](#install-ffmpeg-on-macos)
+  - [Project Structure](#project-structure)
+  - [Database Models](#database-models)
+    - [Django User Model](#django-user-model)
+    - [Quiz Model](#quiz-model)
+    - [QuizQuestion Model](#quizquestion-model)
+  - [Django Admin](#django-admin)
+    - [Quiz Admin](#quiz-admin)
+    - [QuizQuestion Admin](#quizquestion-admin)
+  - [Testing](#testing)
+    - [Run all tests](#run-all-tests)
+    - [Run authentication tests](#run-authentication-tests)
+  - [Current Implementation Status](#current-implementation-status)
 
 ## External Requirements
 
@@ -143,6 +162,7 @@ project_quizly/
 │   │   ├── services/
 │   │   └── tests/
 │   ├── manage.py
+│   ├── pytest.ini
 │   ├── requirements.txt
 │   ├── .env.template
 │   └── README.md
@@ -282,6 +302,33 @@ Admin naming:
 * the quiz model is displayed as `Quiz` / `Quizze`
 * the quiz question model is displayed as `Quizfrage` / `Quizfragen`
 
+## Testing
+
+Quizly uses `pytest` and `pytest-django` for endpoint-based backend tests.
+
+The pytest configuration is stored in `pytest.ini`.
+
+The current authentication tests cover:
+
+* `POST /api/register/`
+* `POST /api/login/`
+* `POST /api/logout/`
+* `POST /api/token/refresh/`
+
+The tests verify documented status codes, response structures, validation behavior, JWT cookie behavior and token blacklist behavior.
+
+### Run all tests
+
+```bash
+pytest
+```
+
+### Run authentication tests
+
+```bash
+pytest auth_app/tests/
+```
+
 ## Current Implementation Status
 
 The backend project currently includes the basic Django and Django REST Framework structure.
@@ -305,3 +352,9 @@ Implemented so far:
 * German admin labels for quiz-related admin sections
 * installed Python dependencies for YouTube metadata handling, audio transcription and Gemini integration
 * updated `requirements.txt` after installing AI and video processing dependencies
+* pytest configuration with `pytest.ini`
+* pytest-based authentication endpoint tests
+* registration endpoint tests for success, validation errors and internal errors
+* login endpoint tests for success, invalid credentials, HttpOnly cookies and internal errors
+* logout endpoint tests for cookie deletion, refresh token blacklisting, unauthorized access and internal errors
+* token refresh endpoint tests for new access cookies, missing refresh tokens, invalid refresh tokens and internal errors
