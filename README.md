@@ -70,12 +70,6 @@ CORS_ALLOWED_ORIGINS=http://127.0.0.1:5500,http://localhost:5500
 GEMINI_API_KEY=your-gemini-api-key
 ```
 
-### Start development server
-
-```bash
-python manage.py runserver
-```
-
 ### Run migrations
 
 ```bash
@@ -88,10 +82,17 @@ python manage.py migrate
 python manage.py createsuperuser
 ```
 
+### Start development server
+
+```bash
+python manage.py runserver
+```
+
 ## Table of Contents
 
 * [External Requirements](#external-requirements)
 
+  * [Python AI and video dependencies](#python-ai-and-video-dependencies)
   * [Install FFmpeg on Windows](#install-ffmpeg-on-windows)
   * [Install FFmpeg on macOS](#install-ffmpeg-on-macos)
 * [Project Structure](#project-structure)
@@ -106,6 +107,14 @@ python manage.py createsuperuser
 ## External Requirements
 
 FFmpeg must be installed globally because Whisper requires it for audio processing.
+
+### Python AI and video dependencies
+
+The backend uses the following Python packages for quiz generation:
+
+* `yt-dlp` for reading YouTube metadata and downloading audio
+* `openai-whisper` for local audio transcription
+* `google-genai` for Gemini Flash quiz generation
 
 ### Install FFmpeg on Windows
 
@@ -139,8 +148,6 @@ project_quizly/
 │   └── README.md
 └── frontend/
 ```
-
-The frontend and backend are separated projects. The provided frontend communicates with this backend through a REST API.
 
 The frontend and backend are separated projects. The provided frontend communicates with this backend through a REST API.
 
@@ -292,7 +299,9 @@ Implemented so far:
 * `Quiz` model for generated user quizzes
 * `QuizQuestion` model for generated quiz questions
 * initial database migrations for quiz models
-* * Django admin configuration for `Quiz`
+* Django admin configuration for `Quiz`
 * Django admin configuration for `QuizQuestion`
 * inline editing of quiz questions inside the related quiz admin page
 * German admin labels for quiz-related admin sections
+* installed Python dependencies for YouTube metadata handling, audio transcription and Gemini integration
+* updated `requirements.txt` after installing AI and video processing dependencies

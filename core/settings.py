@@ -35,7 +35,7 @@ ALLOWED_HOSTS = config(
 )
 
 CORS_ALLOWED_ORIGINS = config(
-    'CORS_ALLOW_ORIGINS',
+    'CORS_ALLOWED_ORIGINS',
     default='http://127.0.0.1:5500,http://localhost:5500',
     cast=Csv(),
 )
