@@ -399,3 +399,10 @@ Implemented so far:
 - quiz endpoint tests verifying user-specific quiz access rules
 - quiz endpoint tests verifying related question deletion when a quiz is deleted
 - expanded README testing documentation with TDD structure, test file locations, test commands and current test counts
+- registration API endpoint with user creation, password confirmation validation and duplicate username/email validation
+- login API endpoint with credential validation, user response data and HttpOnly JWT cookies
+- cookie-based JWT authentication for protected API requests
+- logout API endpoint with refresh token blacklisting and auth cookie deletion
+- token refresh API endpoint with refresh-token-cookie validation and refreshed access-token cookie handling
+- reusable authentication utility helpers for login responses, token cookies and cookie deletion
+- DRF authentication configuration for access tokens stored in HttpOnly cookies
