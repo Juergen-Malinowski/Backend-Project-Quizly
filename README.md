@@ -76,6 +76,8 @@ python manage.py runserver
 
 FFmpeg must be installed globally because Whisper requires it for audio processing.
 
+The Python packages for YouTube metadata handling, audio transcription and Gemini quiz generation are installed through `requirements.txt`.
+
 ### Python AI and video dependencies
 
 The backend uses the following Python packages for quiz generation:
@@ -83,6 +85,12 @@ The backend uses the following Python packages for quiz generation:
 - `yt-dlp` for reading YouTube metadata and downloading audio
 - `openai-whisper` for local audio transcription
 - `google-genai` for Gemini Flash quiz generation
+
+These packages are installed with the regular project dependencies:
+
+```bash
+pip install -r requirements.txt
+```
 
 ### Install FFmpeg on Windows
 
