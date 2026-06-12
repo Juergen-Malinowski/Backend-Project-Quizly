@@ -6,85 +6,45 @@ The backend will provide JWT authentication with HttpOnly cookies and quiz gener
 
 ## Setup
 
-### Clone repository
+Run the following commands to set up the project locally.
 
 ```bash
+# Clone repository
 git clone <your-backend-repository-url>
-```
 
-### Open backend folder
-
-```bash
+# Open backend folder
 cd backend
-```
 
-### Create virtual environment
-
-```bash
+# Create virtual environment
 python -m venv .venv
-```
 
-### Activate virtual environment (Windows)
-
-```bash
+# Activate virtual environment (Windows)
 .venv\Scripts\activate
-```
 
-### Activate virtual environment (Linux / Mac)
-
-```bash
+# Activate virtual environment (Linux / Mac)
 source .venv/bin/activate
-```
 
-### Install dependencies
-
-```bash
+# Install dependencies
 pip install -r requirements.txt
-```
 
-### Create local environment file (Windows)
-
-```bash
+# Create local environment file (Windows)
 copy .env.template .env
-```
 
-### Create local environment file (Linux / Mac)
-
-```bash
+# Create local environment file (Linux / Mac)
 cp .env.template .env
-```
 
-### Generate a Django SECRET_KEY
-
-```bash
+# Generate a Django SECRET_KEY
 python -c "from django.core.management.utils import get_random_secret_key; print(get_random_secret_key())"
-```
 
-### Insert SECRET_KEY into .env
+# Insert SECRET_KEY into .env
 
-```env
-SECRET_KEY=your-secret-key
-DEBUG=True
-ALLOWED_HOSTS=127.0.0.1,localhost
-CORS_ALLOWED_ORIGINS=http://127.0.0.1:5500,http://localhost:5500
-GEMINI_API_KEY=your-gemini-api-key
-```
-
-### Run migrations
-
-```bash
+# Run migrations
 python manage.py migrate
-```
 
-### Create admin user
-
-```bash
+# Create admin user
 python manage.py createsuperuser
-```
 
-### Start development server
-
-```bash
+# Start development server
 python manage.py runserver
 ```
 
@@ -92,19 +52,6 @@ python manage.py runserver
 
 - [Quizly Backend](#quizly-backend)
   - [Setup](#setup)
-    - [Clone repository](#clone-repository)
-    - [Open backend folder](#open-backend-folder)
-    - [Create virtual environment](#create-virtual-environment)
-    - [Activate virtual environment (Windows)](#activate-virtual-environment-windows)
-    - [Activate virtual environment (Linux / Mac)](#activate-virtual-environment-linux--mac)
-    - [Install dependencies](#install-dependencies)
-    - [Create local environment file (Windows)](#create-local-environment-file-windows)
-    - [Create local environment file (Linux / Mac)](#create-local-environment-file-linux--mac)
-    - [Generate a Django SECRET\_KEY](#generate-a-django-secret_key)
-    - [Insert SECRET\_KEY into .env](#insert-secret_key-into-env)
-    - [Run migrations](#run-migrations)
-    - [Create admin user](#create-admin-user)
-    - [Start development server](#start-development-server)
   - [Table of Contents](#table-of-contents)
   - [External Requirements](#external-requirements)
     - [Python AI and video dependencies](#python-ai-and-video-dependencies)
