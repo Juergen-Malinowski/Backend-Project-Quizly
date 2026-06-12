@@ -1,14 +1,18 @@
 """Views for authentication API endpoints."""
 
 from rest_framework import status
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from auth_app.api.serializers import LoginSerializer, RegistrationSerializer
-from auth_app.api.utils import get_login_response_data, set_auth_cookies
+from auth_app.api.utils import (
+    delete_auth_cookies,
+    get_login_response_data,
+    set_auth_cookies,
+)
 
 
 class RegistrationView(APIView):
@@ -72,7 +76,34 @@ class LoginView(APIView):
 
 class LogoutView(APIView):
     """Handles user logout."""
-    pass
+
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        """Blacklists the refresh token and deletes auth cookies."""
+
+        try:
+            refresh_token = request.COOKIES.get('refresh_token')
+            RefreshToken(refresh_token).blacklist()
+            response = Response(
+                {
+                    'detail': (
+                        'Log-Out successfully! All Tokens will be deleted. '
+                        'Refresh token is now invalid.'
+                    ),
+                },
+                status=status.HTTP_200_OK,
+            )
+
+            delete_auth_cookies(response)
+
+            return response
+
+        except Exception:
+            return Response(
+                {'detail': 'Internal server error.'},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
 
 
 class TokenRefreshView(APIView):

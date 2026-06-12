@@ -28,3 +28,10 @@ def set_auth_cookies(response, refresh):
         value=str(refresh),
         httponly=True,
     )
+
+
+def delete_auth_cookies(response):
+    """Deletes access and refresh token cookies."""
+
+    response.delete_cookie('access_token')
+    response.delete_cookie('refresh_token')
