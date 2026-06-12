@@ -136,9 +136,9 @@ FFmpeg must be installed globally because Whisper requires it for audio processi
 
 The backend uses the following Python packages for quiz generation:
 
-* `yt-dlp` for reading YouTube metadata and downloading audio
-* `openai-whisper` for local audio transcription
-* `google-genai` for Gemini Flash quiz generation
+- `yt-dlp` for reading YouTube metadata and downloading audio
+- `openai-whisper` for local audio transcription
+- `google-genai` for Gemini Flash quiz generation
 
 ### Install FFmpeg on Windows
 
@@ -182,91 +182,91 @@ The frontend and backend are separated projects. The provided frontend communica
 
 Purpose:
 
-* provides the default authentication user model
-* stores login-relevant user data
-* is used as the owner relation for generated quizzes
-* is used for JWT authentication with HttpOnly cookies
+- provides the default authentication user model
+- stores login-relevant user data
+- is used as the owner relation for generated quizzes
+- is used for JWT authentication with HttpOnly cookies
 
 Fields used by Quizly:
 
-* id
-* username
-* email
-* password
+- id
+- username
+- email
+- password
 
 Additional notes:
 
-* Quizly uses Django's default user model
-* no custom user model is currently required
-* email uniqueness is handled during registration validation
-* users can only access their own quizzes
+- Quizly uses Django's default user model
+- no custom user model is currently required
+- email uniqueness is handled during registration validation
+- users can only access their own quizzes
 
 ### Quiz Model
 
 Purpose:
 
-* stores generated quizzes created by authenticated users
-* stores the normalized YouTube URL used for quiz generation
-* stores editable quiz metadata such as title and description
-* groups all related quiz questions
+- stores generated quizzes created by authenticated users
+- stores the normalized YouTube URL used for quiz generation
+- stores editable quiz metadata such as title and description
+- groups all related quiz questions
 
 Fields:
 
-* owner (ForeignKey → User)
-* title
-* description
-* video_url
-* created_at
-* updated_at
+- owner (ForeignKey → User)
+- title
+- description
+- video_url
+- created_at
+- updated_at
 
 Important behavior:
 
-* each quiz belongs to exactly one user
-* users can only retrieve, update and delete their own quizzes
-* deleting a user deletes all quizzes owned by that user
-* newest quizzes are ordered first by default
+- each quiz belongs to exactly one user
+- users can only retrieve, update and delete their own quizzes
+- deleting a user deletes all quizzes owned by that user
+- newest quizzes are ordered first by default
 
 Admin integration:
 
-* Quiz objects must be editable through the Django admin
-* related QuizQuestion objects should be manageable inside the related Quiz admin page through Django admin inlines
+- Quiz objects must be editable through the Django admin
+- related QuizQuestion objects should be manageable inside the related Quiz admin page through Django admin inlines
 
 ### QuizQuestion Model
 
 Purpose:
 
-* stores generated questions for a quiz
-* stores the answer options for each question
-* stores the correct answer
-* preserves the question order inside a quiz
+- stores generated questions for a quiz
+- stores the answer options for each question
+- stores the correct answer
+- preserves the question order inside a quiz
 
 Fields:
 
-* quiz (ForeignKey → Quiz)
-* question_title
-* question_options
-* answer
-* position
-* created_at
-* updated_at
+- quiz (ForeignKey → Quiz)
+- question_title
+- question_options
+- answer
+- position
+- created_at
+- updated_at
 
 Important behavior:
 
-* each question belongs to exactly one quiz
-* deleting a quiz deletes all related questions
-* question_options stores the answer options as JSON data
-* each question must provide exactly four answer options
-* the correct answer must be present in question_options
-* questions are ordered by position
+- each question belongs to exactly one quiz
+- deleting a quiz deletes all related questions
+- question_options stores the answer options as JSON data
+- each question must provide exactly four answer options
+- the correct answer must be present in question_options
+- questions are ordered by position
 
 Constraints:
 
-* each quiz can contain only one question per position
+- each quiz can contain only one question per position
 
 Admin integration:
 
-* QuizQuestion objects must be editable through the Django admin
-* QuizQuestion objects should be manageable directly inside the related Quiz admin page through Django admin inlines
+- QuizQuestion objects must be editable through the Django admin
+- QuizQuestion objects should be manageable directly inside the related Quiz admin page through Django admin inlines
 
 ## Django Admin
 
@@ -274,23 +274,23 @@ The Django admin is configured for managing Quizly's database content during dev
 
 Admin areas currently available:
 
-* Django users
-* Django groups
-* quiz management
-* JWT token blacklist data
+- Django users
+- Django groups
+- quiz management
+- JWT token blacklist data
 
 ### Quiz Admin
 
 Purpose:
 
-* allows staff users to view and manage generated quizzes
-* displays quiz ownership, title, video URL and timestamps
-* supports searching by title, description, video URL, username and email
-* supports filtering by creation and update timestamps
+- allows staff users to view and manage generated quizzes
+- displays quiz ownership, title, video URL and timestamps
+- supports searching by title, description, video URL, username and email
+- supports filtering by creation and update timestamps
 
 Related objects:
 
-* QuizQuestion objects are editable directly inside the related Quiz admin page through Django admin inlines
+- QuizQuestion objects are editable directly inside the related Quiz admin page through Django admin inlines
 
 ### QuizQuestion Admin
 
@@ -303,9 +303,9 @@ Purpose:
 
 Admin naming:
 
-* the quiz app is displayed as `Quizverwaltung`
-* the quiz model is displayed as `Quiz` / `Quizze`
-* the quiz question model is displayed as `Quizfrage` / `Quizfragen`
+- the quiz app is displayed as `Quizverwaltung`
+- the quiz model is displayed as `Quiz` / `Quizze`
+- the quiz question model is displayed as `Quizfrage` / `Quizfragen`
 
 ## Testing
 
@@ -415,26 +415,35 @@ The backend project currently includes the basic Django and Django REST Framewor
 
 Implemented so far:
 
-* Django project `core`
-* authentication app `auth_app`
-* quiz management app `quizzes_app`
-* API folder structure for both apps
-* service folder structure for YouTube, Whisper, Gemini and quiz generation logic
-* test folder structure for endpoint-based TDD
-* environment-based settings for `SECRET_KEY`, `DEBUG`, `ALLOWED_HOSTS` and CORS origins
-* basic API routing skeleton
-* `Quiz` model for generated user quizzes
-* `QuizQuestion` model for generated quiz questions
-* initial database migrations for quiz models
-* Django admin configuration for `Quiz`
-* Django admin configuration for `QuizQuestion`
-* inline editing of quiz questions inside the related quiz admin page
-* German admin labels for quiz-related admin sections
-* installed Python dependencies for YouTube metadata handling, audio transcription and Gemini integration
-* updated `requirements.txt` after installing AI and video processing dependencies
-* pytest configuration with `pytest.ini`
-* pytest-based authentication endpoint tests
-* registration endpoint tests for success, validation errors and internal errors
-* login endpoint tests for success, invalid credentials, HttpOnly cookies and internal errors
-* logout endpoint tests for cookie deletion, refresh token blacklisting, unauthorized access and internal errors
-* token refresh endpoint tests for new access cookies, missing refresh tokens, invalid refresh tokens and internal errors
+- Django project `core`
+- authentication app `auth_app`
+- quiz management app `quizzes_app`
+- API folder structure for both apps
+- service folder structure for YouTube, Whisper, Gemini and quiz generation logic
+- test folder structure for endpoint-based TDD
+- environment-based settings for `SECRET_KEY`, `DEBUG`, `ALLOWED_HOSTS` and CORS origins
+- basic API routing skeleton
+- `Quiz` model for generated user quizzes
+- `QuizQuestion` model for generated quiz questions
+- initial database migrations for quiz models
+- Django admin configuration for `Quiz`
+- Django admin configuration for `QuizQuestion`
+- inline editing of quiz questions inside the related quiz admin page
+- German admin labels for quiz-related admin sections
+- installed Python dependencies for YouTube metadata handling, audio transcription and Gemini integration
+- updated `requirements.txt` after installing AI and video processing dependencies
+- pytest configuration with `pytest.ini`
+- pytest-based authentication endpoint tests
+- registration endpoint tests for success, validation errors and internal errors
+- login endpoint tests for success, invalid credentials, HttpOnly cookies and internal errors
+- logout endpoint tests for cookie deletion, refresh token blacklisting, unauthorized access and internal errors
+- token refresh endpoint tests for new access cookies, missing refresh tokens, invalid refresh tokens and internal errors
+- quiz create endpoint tests for success, authentication, validation errors and internal errors
+- quiz list endpoint tests for authenticated user-specific quiz retrieval, unauthorized access and internal errors
+- quiz detail retrieve endpoint tests for success, ownership checks, missing quizzes, unauthorized access and internal errors
+- quiz detail update endpoint tests for partial updates, validation errors, ownership checks, missing quizzes, unauthorized access and internal errors
+- quiz detail delete endpoint tests for permanent deletion, ownership checks, missing quizzes, unauthorized access and internal errors
+- quiz endpoint tests verifying nested question response structures
+- quiz endpoint tests verifying user-specific quiz access rules
+- quiz endpoint tests verifying related question deletion when a quiz is deleted
+- expanded README testing documentation with TDD structure, test file locations, test commands and current test counts
