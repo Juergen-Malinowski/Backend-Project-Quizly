@@ -5,7 +5,10 @@ from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from auth_app.api.serializers import RegistrationSerializer
+from rest_framework_simplejwt.tokens import RefreshToken
+
+from auth_app.api.serializers import LoginSerializer, RegistrationSerializer
+from auth_app.api.utils import get_login_response_data, set_auth_cookies
 
 
 class RegistrationView(APIView):
@@ -37,7 +40,34 @@ class RegistrationView(APIView):
 
 class LoginView(APIView):
     """Handles user login."""
-    pass
+
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        """Authenticates a user and sets JWT cookies."""
+
+        try:
+            serializer = LoginSerializer(data=request.data)
+
+            if not serializer.is_valid():
+                return Response(
+                    {'detail': 'Invalid credentials.'},
+                    status=status.HTTP_401_UNAUTHORIZED,
+                )
+
+            user = serializer.validated_data['user']
+            refresh = RefreshToken.for_user(user)
+            data = get_login_response_data(user)
+            response = Response(data, status=status.HTTP_200_OK)
+            set_auth_cookies(response, refresh)
+
+            return response
+
+        except Exception:
+            return Response(
+                {'detail': 'Internal server error.'},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
 
 
 class LogoutView(APIView):
