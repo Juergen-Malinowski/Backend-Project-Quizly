@@ -119,8 +119,13 @@ python manage.py runserver
     - [Quiz Admin](#quiz-admin)
     - [QuizQuestion Admin](#quizquestion-admin)
   - [Testing](#testing)
-    - [Run all tests](#run-all-tests)
-    - [Run authentication tests](#run-authentication-tests)
+    - [Test Structure](#test-structure)
+    - [Tested Apps](#tested-apps)
+    - [Test File Locations](#test-file-locations)
+      - [auth\_app](#auth_app)
+      - [quizzes\_app](#quizzes_app)
+    - [Running Tests](#running-tests)
+    - [Current Test Counts - 43 Tests](#current-test-counts---43-tests)
   - [Current Implementation Status](#current-implementation-status)
 
 ## External Requirements
@@ -291,10 +296,10 @@ Related objects:
 
 Purpose:
 
-* allows staff users to view and manage generated quiz questions
-* displays the related quiz, question position, question title, answer and creation timestamp
-* supports searching by quiz title, question title and answer
-* supports filtering by quiz, creation timestamp and update timestamp
+- allows staff users to view and manage generated quiz questions
+- displays the related quiz, question position, question title, answer and creation timestamp
+- supports searching by quiz title, question title and answer
+- supports filtering by quiz, creation timestamp and update timestamp
 
 Admin naming:
 
@@ -304,30 +309,105 @@ Admin naming:
 
 ## Testing
 
+This project follows a strong test-driven development (TDD) approach.
+
 Quizly uses `pytest` and `pytest-django` for endpoint-based backend tests.
 
 The pytest configuration is stored in `pytest.ini`.
 
-The current authentication tests cover:
+The goal of the testing architecture is to validate backend behavior before endpoint implementation is completed. Each endpoint receives dedicated API tests to verify authentication, permissions, validation behavior, ownership rules, JWT cookie behavior, token blacklist behavior, nested response structures and expected HTTP responses.
 
-* `POST /api/register/`
-* `POST /api/login/`
-* `POST /api/logout/`
-* `POST /api/token/refresh/`
+### Test Structure
 
-The tests verify documented status codes, response structures, validation behavior, JWT cookie behavior and token blacklist behavior.
+The test suite is organized by app and endpoint responsibility.
 
-### Run all tests
+Each endpoint has its own dedicated test file to keep tests isolated, maintainable and easier to debug.
+
+Reusable setup logic is extracted into `mixins.py` files where appropriate.
+
+Example structure:
+
+```txt
+app_name/tests/
+├── mixins.py
+├── test_endpoint_create_api.py
+├── test_endpoint_list_api.py
+├── test_endpoint_detail_retrieve_api.py
+├── test_endpoint_detail_update_api.py
+└── test_endpoint_detail_delete_api.py
+```
+
+### Tested Apps
+
+The following apps currently contain dedicated API test coverage:
+
+- `auth_app`
+- `quizzes_app`
+
+### Test File Locations
+
+#### auth_app
+
+```txt
+auth_app/tests/
+├── mixins.py
+├── test_login_api.py
+├── test_logout_api.py
+├── test_registration_api.py
+└── test_token_refresh_api.py
+```
+
+#### quizzes_app
+
+```txt
+quizzes_app/tests/
+├── mixins.py
+├── test_quiz_create_api.py
+├── test_quiz_detail_delete_api.py
+├── test_quiz_detail_retrieve_api.py
+├── test_quiz_detail_update_api.py
+└── test_quiz_list_api.py
+```
+
+### Running Tests
+
+Run all tests:
 
 ```bash
 pytest
 ```
 
-### Run authentication tests
+Run tests for a specific app:
 
 ```bash
 pytest auth_app/tests/
 ```
+
+```bash
+pytest quizzes_app/tests/
+```
+
+Run a single endpoint test file:
+
+```bash
+pytest quizzes_app/tests/test_quiz_create_api.py
+```
+
+Run a single test method:
+
+```bash
+pytest quizzes_app/tests/test_quiz_create_api.py::QuizCreateApiTests::test_quiz_create_returns_created_quiz_with_questions
+```
+
+This allows every endpoint test suite to be executed independently during development and debugging.
+
+### Current Test Counts - 43 Tests
+
+| App           | Test Count |
+| ------------- | ---------: |
+| `auth_app`    |         19 |
+| `quizzes_app` |         24 |
+| **Total**     |     **43** |
 
 ## Current Implementation Status
 
