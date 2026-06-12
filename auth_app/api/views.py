@@ -5,12 +5,14 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from rest_framework_simplejwt.exceptions import TokenError
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from auth_app.api.serializers import LoginSerializer, RegistrationSerializer
 from auth_app.api.utils import (
     delete_auth_cookies,
     get_login_response_data,
+    set_access_cookie,
     set_auth_cookies,
 )
 
@@ -108,4 +110,39 @@ class LogoutView(APIView):
 
 class TokenRefreshView(APIView):
     """Handles access token refresh."""
-    pass
+
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        """Creates a new access token from the refresh cookie."""
+
+        refresh_token = request.COOKIES.get('refresh_token')
+
+        if refresh_token is None:
+            return Response(
+                {'detail': 'Invalid refresh token.'},
+                status=status.HTTP_401_UNAUTHORIZED,
+            )
+
+        try:
+            refresh = RefreshToken(refresh_token)
+            response = Response(
+                {'detail': 'Token refreshed'},
+                status=status.HTTP_200_OK,
+            )
+
+            set_access_cookie(response, refresh)
+
+            return response
+
+        except TokenError:
+            return Response(
+                {'detail': 'Invalid refresh token.'},
+                status=status.HTTP_401_UNAUTHORIZED,
+            )
+
+        except Exception:
+            return Response(
+                {'detail': 'Internal server error.'},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )

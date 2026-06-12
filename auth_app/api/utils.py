@@ -30,6 +30,16 @@ def set_auth_cookies(response, refresh):
     )
 
 
+def set_access_cookie(response, refresh):
+    """Sets a new access token as HttpOnly cookie."""
+
+    response.set_cookie(
+        key='access_token',
+        value=str(refresh.access_token),
+        httponly=True,
+    )
+
+
 def delete_auth_cookies(response):
     """Deletes access and refresh token cookies."""
 
