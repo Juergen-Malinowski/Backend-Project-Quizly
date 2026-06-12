@@ -17,6 +17,12 @@ class QuizTestMixin:
         return reverse('quiz-list-create')
 
 
+    def get_quiz_detail_url(self, quiz_id):
+        """Returns the quiz detail endpoint URL."""
+
+        return reverse('quiz-detail', kwargs={'pk': quiz_id})
+
+
     def create_test_user(self):
         """Creates a reusable test user."""
 
