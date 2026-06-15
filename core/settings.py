@@ -18,7 +18,17 @@ from decouple import config, Csv
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+# Temporary directory for downloaded audio files during quiz generation.
 QUIZ_AUDIO_TEMP_DIR = BASE_DIR / 'tmp' / 'quiz_audio'
+
+# Whisper model used for local audio transcription.
+WHISPER_MODEL_NAME = config('WHISPER_MODEL_NAME', default='base')
+
+# Gemini API key used for quiz generation.
+GEMINI_API_KEY = config('GEMINI_API_KEY', default='')
+
+# Gemini model used for quiz generation.
+GEMINI_MODEL_NAME = config('GEMINI_MODEL_NAME', default='gemini-2.5-flash')
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/

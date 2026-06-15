@@ -1,7 +1,14 @@
-"""Service functions for audio transcription."""
+"""Service functions for Whisper audio transcription."""
+
+import whisper
+
+from django.conf import settings
 
 
 def transcribe_audio_file(audio_file_path):
     """Transcribes an audio file and returns the transcript."""
 
-    raise NotImplementedError('Audio transcription is not implemented yet.')
+    model = whisper.load_model(settings.WHISPER_MODEL_NAME)
+    result = model.transcribe(audio_file_path)
+
+    return result['text']
