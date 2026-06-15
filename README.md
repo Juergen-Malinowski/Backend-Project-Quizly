@@ -54,6 +54,8 @@ python manage.py runserver
   - [Python AI and video dependencies](#python-ai-and-video-dependencies)
   - [Install FFmpeg on Windows](#install-ffmpeg-on-windows)
   - [Install FFmpeg on macOS](#install-ffmpeg-on-macos)
+  - [Install Deno on Windows](#install-deno-on-windows)
+  - [Install Deno on macOS](#install-deno-on-macos)
 - [Project Structure](#project-structure)
 - [Database Models](#database-models)
   - [Django User Model](#django-user-model)
@@ -69,12 +71,15 @@ python manage.py runserver
     - [auth_app](#auth_app)
     - [quizzes_app](#quizzes_app)
   - [Running Tests](#running-tests)
-  - [Current Test Counts - 43 Tests](#current-test-counts---43-tests)
+  - [Manual Smoke Test](#manual-smoke-test)
+  - [Current Test Counts - 60 Tests](#current-test-counts---60-tests)
 - [Current Implementation Status](#current-implementation-status)
 
 ## External Requirements
 
-FFmpeg must be installed globally because Whisper requires it for audio processing.
+FFmpeg must be installed globally because Whisper requires it for audio loading and transcription.
+
+Deno must be installed globally because newer YouTube extraction with `yt-dlp` may require a supported JavaScript runtime.
 
 The Python packages for YouTube metadata handling, audio transcription and Gemini quiz generation are installed through `requirements.txt`.
 
@@ -102,6 +107,18 @@ winget install --id Gyan.FFmpeg -e --source winget
 
 ```bash
 brew install ffmpeg
+```
+
+### Install Deno on Windows
+
+```bash
+winget install DenoLand.Deno
+```
+
+### Install Deno on macOS
+
+```bash
+brew install deno
 ```
 
 ## Project Structure
@@ -261,37 +278,28 @@ Admin naming:
 
 ## Testing
 
-This project follows a strong test-driven development (TDD) approach.
+The project uses `pytest` and `pytest-django` for automated backend testing.
 
-Quizly uses `pytest` and `pytest-django` for endpoint-based backend tests.
-
-The pytest configuration is stored in `pytest.ini`.
-
-The goal of the testing architecture is to validate backend behavior before endpoint implementation is completed. Each endpoint receives dedicated API tests to verify authentication, permissions, validation behavior, ownership rules, JWT cookie behavior, token blacklist behavior, nested response structures and expected HTTP responses.
+Automated tests are endpoint-based and service-based. External services such as YouTube extraction, local Whisper transcription and Gemini quiz generation are mocked during automated tests to keep the test suite stable, fast and independent from external providers.
 
 ### Test Structure
 
-The test suite is organized by app and endpoint responsibility.
+The test structure follows the app-based project architecture.
 
-Each endpoint has its own dedicated test file to keep tests isolated, maintainable and easier to debug.
-
-Reusable setup logic is extracted into `mixins.py` files where appropriate.
-
-Example structure:
+Each tested app contains its own `tests` folder with endpoint-specific test files and shared test helpers.
 
 ```txt
-app_name/tests/
-├── mixins.py
-├── test_endpoint_create_api.py
-├── test_endpoint_list_api.py
-├── test_endpoint_detail_retrieve_api.py
-├── test_endpoint_detail_update_api.py
-└── test_endpoint_detail_delete_api.py
+app_name/
+└── tests/
+    ├── mixins.py
+    └── test_*_api.py
 ```
+
+Service tests are placed in the related app test folder and validate isolated service behavior.
 
 ### Tested Apps
 
-The following apps currently contain dedicated API test coverage:
+The current test suite covers the following apps:
 
 - `auth_app`
 - `quizzes_app`
@@ -309,61 +317,131 @@ auth_app/tests/
 └── test_token_refresh_api.py
 ```
 
+The authentication tests cover:
+
+- user registration
+- password confirmation validation
+- duplicate username validation
+- duplicate email validation
+- user login
+- JWT cookie creation
+- logout handling
+- refresh token blacklisting
+- access token refresh through HttpOnly cookies
+- invalid credentials
+- authentication error cases
+
 #### quizzes_app
 
 ```txt
 quizzes_app/tests/
 ├── mixins.py
+├── test_gemini_service.py
 ├── test_quiz_create_api.py
 ├── test_quiz_detail_delete_api.py
 ├── test_quiz_detail_retrieve_api.py
 ├── test_quiz_detail_update_api.py
-└── test_quiz_list_api.py
+├── test_quiz_generation_service.py
+├── test_quiz_list_api.py
+├── test_whisper_service.py
+└── test_youtube_service.py
 ```
+
+The quiz tests cover:
+
+- authenticated quiz creation
+- unauthenticated quiz creation rejection
+- YouTube URL validation
+- YouTube URL normalization
+- rejection of non-YouTube URLs
+- rejection of YouTube URLs without video IDs
+- generated quiz persistence
+- generated quiz question persistence
+- quiz generation service orchestration
+- temporary audio file cleanup after successful quiz generation
+- temporary audio file cleanup after failed quiz generation
+- YouTube audio extraction service behavior
+- `yt_dlp` option handling
+- single-video download handling
+- Whisper model loading
+- Whisper transcript extraction
+- Gemini prompt handling
+- Gemini markdown fence cleanup
+- Gemini JSON parsing
+- generated quiz data validation
+- generated question data validation
+- quiz list endpoint behavior
+- quiz detail retrieval behavior
+- quiz detail update behavior
+- quiz detail deletion behavior
 
 ### Running Tests
 
-Run all tests:
+Run the complete test suite from the backend root folder:
 
 ```bash
-pytest
+python -m pytest
 ```
 
-Run tests for a specific app:
+Run only authentication tests:
 
 ```bash
-pytest auth_app/tests/
+python -m pytest auth_app/tests/
 ```
+
+Run only quiz tests:
 
 ```bash
-pytest quizzes_app/tests/
+python -m pytest quizzes_app/tests/
 ```
 
-Run a single endpoint test file:
+Run one specific test file:
 
 ```bash
-pytest quizzes_app/tests/test_quiz_create_api.py
+python -m pytest quizzes_app/tests/test_quiz_create_api.py
 ```
 
-Run a single test method:
+### Manual Smoke Test
 
-```bash
-pytest quizzes_app/tests/test_quiz_create_api.py::QuizCreateApiTests::test_quiz_create_returns_created_quiz_with_questions
+The real quiz generation pipeline depends on external runtime behavior and external services.
+
+The following parts are mocked during automated tests:
+
+- YouTube extraction through `yt_dlp`
+- local Whisper transcription
+- Gemini quiz generation
+
+For this reason, one manual Postman smoke test was used to verify the real end-to-end quiz creation flow.
+
+Verified flow:
+
+- authenticated request with JWT HttpOnly cookies
+- YouTube audio extraction through `yt_dlp`
+- FFmpeg availability for Whisper audio loading
+- local Whisper transcription
+- Gemini quiz generation
+- database persistence of quiz and related questions
+- successful API response from the quiz creation endpoint
+
+Smoke-tested endpoint:
+
+```txt
+POST /api/quizzes/
 ```
 
-This allows every endpoint test suite to be executed independently during development and debugging.
+The manual smoke test returned `201 Created` with one generated quiz and exactly 10 generated questions.
 
-### Current Test Counts - 43 Tests
+### Current Test Counts - 60 Tests
 
 | App           | Test Count |
 | ------------- | ---------: |
 | `auth_app`    |         19 |
-| `quizzes_app` |         24 |
-| **Total**     |     **43** |
+| `quizzes_app` |         41 |
+| **Total**     |     **60** |
 
 ## Current Implementation Status
 
-The backend project currently includes the basic Django and Django REST Framework structure.
+The backend project currently includes the Django and Django REST Framework structure, completed authentication endpoints and the first implemented quiz generation endpoint.
 
 Implemented so far:
 
@@ -406,3 +484,29 @@ Implemented so far:
 - token refresh API endpoint with refresh-token-cookie validation and refreshed access-token cookie handling
 - reusable authentication utility helpers for login responses, token cookies and cookie deletion
 - DRF authentication configuration for access tokens stored in HttpOnly cookies
+- quiz creation API endpoint for authenticated users
+- YouTube URL validation for quiz creation
+- YouTube URL normalization before quiz generation
+- rejection of non-YouTube URLs and YouTube URLs without video IDs
+- generated quiz persistence with related quiz questions
+- transactional quiz and question creation
+- YouTube audio extraction service with `yt-dlp`
+- temporary audio file handling for quiz generation
+- automatic cleanup of temporary audio files after successful or failed quiz generation
+- Whisper transcription service for local audio transcription
+- configurable Whisper model setting
+- Gemini quiz generation service
+- configurable Gemini API key and Gemini model settings
+- Gemini prompt structure for generating valid quiz JSON
+- markdown fence cleanup for Gemini responses
+- JSON parsing and validation for generated quiz data
+- validation that generated quizzes contain exactly 10 questions
+- validation that each generated question contains exactly four answer options
+- validation that each generated answer exists in the related answer options
+- error logging for unexpected quiz creation failures
+- quiz creation API tests for YouTube URL validation and normalization
+- quiz generation service tests for service orchestration and temporary audio cleanup
+- YouTube service tests for `yt_dlp` options and audio path handling
+- Whisper service tests for model loading and transcript extraction
+- Gemini service tests for prompt handling, JSON parsing and generated quiz validation
+- successful manual smoke test for `POST /api/quizzes/` with real YouTube extraction, Whisper transcription and Gemini quiz generation
