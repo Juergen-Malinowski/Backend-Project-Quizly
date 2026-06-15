@@ -132,3 +132,54 @@ class QuizCreateApiTests(QuizTestMixin, APITestCase):
         self.assertEqual(response.status_code, status.HTTP_500_INTERNAL_SERVER_ERROR)
         self.assertEqual(Quiz.objects.count(), 0)
         self.assertEqual(QuizQuestion.objects.count(), 0)
+
+
+    @patch('quizzes_app.api.views.generate_quiz_from_youtube_url')
+    def test_quiz_create_normalizes_short_youtube_url(self, mocked_generation):
+        """Ensures short YouTube URLs are normalized before quiz generation."""
+
+        self.authenticate_with_access_token_cookie()
+        mocked_generation.return_value = self.get_generated_quiz_data()
+
+        response = self.client.post(
+            self.get_quiz_list_create_url(),
+            {'url': 'https://youtu.be/example'},
+            format='json',
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        mocked_generation.assert_called_once_with(
+            'https://www.youtube.com/watch?v=example',
+        )
+
+
+    def test_quiz_create_fails_with_non_youtube_url(self):
+        """Ensures non-YouTube URLs are rejected."""
+
+        self.authenticate_with_access_token_cookie()
+
+        response = self.client.post(
+            self.get_quiz_list_create_url(),
+            {'url': 'https://example.com/watch?v=example'},
+            format='json',
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(Quiz.objects.count(), 0)
+        self.assertEqual(QuizQuestion.objects.count(), 0)
+
+
+    def test_quiz_create_fails_with_youtube_url_without_video_id(self):
+        """Ensures YouTube URLs without video IDs are rejected."""
+
+        self.authenticate_with_access_token_cookie()
+
+        response = self.client.post(
+            self.get_quiz_list_create_url(),
+            {'url': 'https://www.youtube.com/'},
+            format='json',
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(Quiz.objects.count(), 0)
+        self.assertEqual(QuizQuestion.objects.count(), 0)

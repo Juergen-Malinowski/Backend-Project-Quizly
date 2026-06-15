@@ -122,3 +122,60 @@ class QuizGenerationServiceTests(SimpleTestCase):
             'question_options': question_options,
             'answer': question_options[0],
         }
+
+
+    @patch('quizzes_app.services.quiz_generation_service.Path')
+    @patch('quizzes_app.services.quiz_generation_service.generate_quiz_from_transcript')
+    @patch('quizzes_app.services.quiz_generation_service.transcribe_audio_file')
+    @patch('quizzes_app.services.quiz_generation_service.create_audio_file_from_youtube_url')
+    def test_generate_quiz_from_youtube_url_removes_temporary_audio_file(
+        self,
+        mocked_audio_creation,
+        mocked_transcription,
+        mocked_quiz_generation,
+        mocked_path,
+    ):
+        """Ensures temporary audio files are removed after generation."""
+
+        url = 'https://www.youtube.com/watch?v=example'
+        audio_file_path = 'tmp/audio-file.webm'
+        transcript = 'Generated transcript text.'
+
+        self.configure_generation_mocks(
+            mocked_audio_creation,
+            mocked_transcription,
+            mocked_quiz_generation,
+            audio_file_path,
+            transcript,
+        )
+
+        generate_quiz_from_youtube_url(url)
+
+        mocked_path.assert_called_once_with(audio_file_path)
+        mocked_path.return_value.unlink.assert_called_once_with(missing_ok=True)
+
+
+    @patch('quizzes_app.services.quiz_generation_service.Path')
+    @patch('quizzes_app.services.quiz_generation_service.generate_quiz_from_transcript')
+    @patch('quizzes_app.services.quiz_generation_service.transcribe_audio_file')
+    @patch('quizzes_app.services.quiz_generation_service.create_audio_file_from_youtube_url')
+    def test_generate_quiz_from_youtube_url_removes_audio_file_on_error(
+        self,
+        mocked_audio_creation,
+        mocked_transcription,
+        mocked_quiz_generation,
+        mocked_path,
+    ):
+        """Ensures temporary audio files are removed when generation fails."""
+
+        url = 'https://www.youtube.com/watch?v=example'
+        audio_file_path = 'tmp/audio-file.webm'
+        mocked_audio_creation.return_value = audio_file_path
+        mocked_transcription.return_value = 'Generated transcript text.'
+        mocked_quiz_generation.side_effect = ValueError('Invalid quiz data.')
+
+        with self.assertRaises(ValueError):
+            generate_quiz_from_youtube_url(url)
+
+        mocked_path.assert_called_once_with(audio_file_path)
+        mocked_path.return_value.unlink.assert_called_once_with(missing_ok=True)
