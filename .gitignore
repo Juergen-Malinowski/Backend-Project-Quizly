@@ -63,6 +63,7 @@ frontend/.angular/
 Thumbs.db
 
 # --- Logs and Local Files ---
+tmp/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
