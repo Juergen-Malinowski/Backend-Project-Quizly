@@ -7,7 +7,11 @@ from rest_framework.generics import GenericAPIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
-from quizzes_app.api.serializers import QuizCreateUrlSerializer, QuizSerializer
+from quizzes_app.api.serializers import (
+     QuizCreateUrlSerializer, 
+     QuizSerializer, 
+     QuizUpdateSerializer,
+)
 from quizzes_app.api.utils import create_quiz_with_questions
 from quizzes_app.models import Quiz
 from quizzes_app.services.quiz_generation_service import generate_quiz_from_youtube_url
@@ -101,6 +105,42 @@ class QuizDetailView(GenericAPIView):
                 {'detail': 'You do not have permission to access this quiz.'},
                 status=status.HTTP_403_FORBIDDEN,
             )
+
+        response_serializer = QuizSerializer(quiz)
+
+        return Response(
+            response_serializer.data,
+            status=status.HTTP_200_OK,
+        )
+
+
+    def patch(self, request, pk):
+        """Partially updates one quiz owned by the authenticated user."""
+
+        try:
+            quiz = Quiz.objects.get(pk=pk)
+        except Quiz.DoesNotExist:
+            return Response(
+                {'detail': 'Not found.'},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+        except Exception:
+            logger.exception('Unexpected error during quiz detail update.')
+
+            return Response(
+                {'detail': 'Internal server error.'},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
+
+        if quiz.owner_id != request.user.id:
+            return Response(
+                {'detail': 'You do not have permission to update this quiz.'},
+                status=status.HTTP_403_FORBIDDEN,
+            )
+
+        serializer = QuizUpdateSerializer(quiz, data=request.data, partial=True,)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
 
         response_serializer = QuizSerializer(quiz)
 
