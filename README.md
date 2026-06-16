@@ -48,37 +48,7 @@ python manage.py createsuperuser
 python manage.py runserver
 ```
 
-## Table of Contents
-
-- [External Requirements](#external-requirements)
-  - [Python AI and video dependencies](#python-ai-and-video-dependencies)
-  - [Install FFmpeg on Windows](#install-ffmpeg-on-windows)
-  - [Install FFmpeg on macOS](#install-ffmpeg-on-macos)
-  - [Install Deno on Windows](#install-deno-on-windows)
-  - [Install Deno on macOS](#install-deno-on-macos)
-- [Project Structure](#project-structure)
-- [Database Models](#database-models)
-  - [Django User Model](#django-user-model)
-  - [Quiz Model](#quiz-model)
-  - [QuizQuestion Model](#quizquestion-model)
-- [Django Admin](#django-admin)
-  - [Quiz Admin](#quiz-admin)
-  - [QuizQuestion Admin](#quizquestion-admin)
-- [API Endpoints](#api-endpoints)
-  - [Authentication](#authentication)
-  - [Quiz Management](#quiz-management)
-- [Testing](#testing)
-  - [Test Structure](#test-structure)
-  - [Tested Apps](#tested-apps)
-  - [Test File Locations](#test-file-locations)
-    - [auth_app](#auth_app)
-    - [quizzes_app](#quizzes_app)
-  - [Running Tests](#running-tests)
-  - [Manual Smoke Test](#manual-smoke-test)
-  - [Current Test Counts - 61 Tests](#current-test-counts---61-tests)
-- [Current Implementation Status](#current-implementation-status)
-
-## External Requirements
+## Setup External Requirements
 
 FFmpeg must be installed globally because Whisper requires it for audio loading and transcription.
 
@@ -123,6 +93,30 @@ winget install DenoLand.Deno
 ```bash
 brew install deno
 ```
+
+## Table of Contents
+
+- [Project Structure](#project-structure)
+- [Database Models](#database-models)
+  - [Django User Model](#django-user-model)
+  - [Quiz Model](#quiz-model)
+  - [QuizQuestion Model](#quizquestion-model)
+- [Django Admin](#django-admin)
+  - [Quiz Admin](#quiz-admin)
+  - [QuizQuestion Admin](#quizquestion-admin)
+- [API Endpoints](#api-endpoints)
+  - [Authentication](#authentication)
+  - [Quiz Management](#quiz-management)
+- [Testing](#testing)
+  - [Test Structure](#test-structure)
+  - [Tested Apps](#tested-apps)
+  - [Test File Locations](#test-file-locations)
+    - [auth_app](#auth_app)
+    - [quizzes_app](#quizzes_app)
+  - [Running Tests](#running-tests)
+  - [Manual Smoke Test](#manual-smoke-test)
+  - [Current Test Counts - 61 Tests](#current-test-counts---61-tests)
+- [Current Implementation Status](#current-implementation-status)
 
 ## Project Structure
 
