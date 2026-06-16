@@ -1,5 +1,7 @@
 """Tests for the token refresh API endpoint."""
 
+from datetime import timedelta
+
 from unittest.mock import patch
 
 from rest_framework import status
@@ -78,3 +80,23 @@ class TokenRefreshApiTests(AuthTestMixin, APITestCase):
         )
 
         self.assertEqual(response.status_code, status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+    def test_token_refresh_succeeds_with_expired_access_token_cookie(self):
+        """Ensures refresh works when the access token cookie is expired."""
+
+        refresh = self.authenticate_with_cookie_tokens()
+        expired_access_token = refresh.access_token
+        expired_access_token.set_exp(lifetime=timedelta(seconds=-1))
+        self.client.cookies['access_token'] = str(expired_access_token)
+
+        response = self.client.post(
+            self.get_token_refresh_url(),
+            {},
+            format='json',
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['detail'], 'Token refreshed')
+        self.assertIn('access_token', response.cookies)
+        self.assertTrue(response.cookies['access_token']['httponly'])

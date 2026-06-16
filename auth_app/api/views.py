@@ -112,6 +112,7 @@ class TokenRefreshView(APIView):
     """Handles access token refresh."""
 
     permission_classes = [AllowAny]
+    authentication_classes = []
 
     def post(self, request):
         """Creates a new access token from the refresh cookie."""
