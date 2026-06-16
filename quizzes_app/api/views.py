@@ -9,6 +9,7 @@ from rest_framework.response import Response
 
 from quizzes_app.api.serializers import QuizCreateUrlSerializer, QuizSerializer
 from quizzes_app.api.utils import create_quiz_with_questions
+from quizzes_app.models import Quiz
 from quizzes_app.services.quiz_generation_service import generate_quiz_from_youtube_url
 
 
@@ -45,6 +46,29 @@ class QuizListCreateView(GenericAPIView):
         return Response(
             response_serializer.data,
             status=status.HTTP_201_CREATED,
+        )
+
+
+    def get(self, request):
+        """Returns all quizzes owned by the authenticated user."""
+
+        try:
+            quizzes = Quiz.objects.filter(
+                owner=request.user,
+            ).prefetch_related('questions')
+        except Exception:
+            logger.exception('Unexpected error during quiz list retrieval.')
+
+            return Response(
+                {'detail': 'Internal server error.'},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
+
+        response_serializer = QuizSerializer(quizzes, many=True)
+
+        return Response(
+            response_serializer.data,
+            status=status.HTTP_200_OK,
         )
 
 
