@@ -148,3 +148,32 @@ class QuizDetailView(GenericAPIView):
             response_serializer.data,
             status=status.HTTP_200_OK,
         )
+
+
+    def delete(self, request, pk):
+        """Permanently deletes one quiz owned by the authenticated user."""
+
+        try:
+            quiz = Quiz.objects.get(pk=pk)
+        except Quiz.DoesNotExist:
+            return Response(
+                {'detail': 'Not found.'},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+        except Exception:
+            logger.exception('Unexpected error during quiz detail deletion.')
+
+            return Response(
+                {'detail': 'Internal server error.'},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
+
+        if quiz.owner_id != request.user.id:
+            return Response(
+                {'detail': 'You do not have permission to delete this quiz.'},
+                status=status.HTTP_403_FORBIDDEN,
+            )
+
+        quiz.delete()
+
+        return Response(status=status.HTTP_204_NO_CONTENT)
