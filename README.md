@@ -2,7 +2,7 @@
 
 Quizly Backend is a Django REST Framework backend for the provided Quizly frontend.
 
-The backend will provide JWT authentication with HttpOnly cookies and quiz generation from YouTube URLs.
+The backend provides JWT authentication with HttpOnly cookies and quiz generation from YouTube URLs.
 
 ## Setup
 
@@ -64,6 +64,9 @@ python manage.py runserver
 - [Django Admin](#django-admin)
   - [Quiz Admin](#quiz-admin)
   - [QuizQuestion Admin](#quizquestion-admin)
+- [API Endpoints](#api-endpoints)
+  - [Authentication](#authentication)
+  - [Quiz Management](#quiz-management)
 - [Testing](#testing)
   - [Test Structure](#test-structure)
   - [Tested Apps](#tested-apps)
@@ -72,7 +75,7 @@ python manage.py runserver
     - [quizzes_app](#quizzes_app)
   - [Running Tests](#running-tests)
   - [Manual Smoke Test](#manual-smoke-test)
-  - [Current Test Counts - 60 Tests](#current-test-counts---60-tests)
+  - [Current Test Counts - 61 Tests](#current-test-counts---61-tests)
 - [Current Implementation Status](#current-implementation-status)
 
 ## External Requirements
@@ -276,6 +279,56 @@ Admin naming:
 - the quiz model is displayed as `Quiz` / `Quizze`
 - the quiz question model is displayed as `Quizfrage` / `Quizfragen`
 
+## API Endpoints
+
+The backend exposes REST API endpoints for authentication and quiz management.
+
+### Authentication
+
+```txt
+POST /api/register/
+POST /api/login/
+POST /api/logout/
+POST /api/token/refresh/
+```
+
+Implemented behavior:
+
+- users can register with username, email, password and password confirmation
+- users can log in with username and password
+- login responses set JWT access and refresh tokens as HttpOnly cookies
+- logout deletes authentication cookies and blacklists the refresh token
+- token refresh reads the refresh token from the HttpOnly cookie and sets a new access token cookie
+- public authentication endpoints are not blocked by stale or expired access token cookies
+
+### Quiz Management
+
+```txt
+POST   /api/quizzes/
+GET    /api/quizzes/
+GET    /api/quizzes/{id}/
+PATCH  /api/quizzes/{id}/
+DELETE /api/quizzes/{id}/
+```
+
+Implemented behavior:
+
+- authenticated users can generate a new quiz from a valid YouTube URL
+- valid YouTube URLs are normalized before quiz generation
+- invalid or unsupported URLs are rejected
+- authenticated users can retrieve all of their own quizzes
+- authenticated users can retrieve one of their own quizzes with all related questions
+- authenticated users can partially update the title and description of their own quizzes
+- authenticated users can permanently delete their own quizzes
+- users cannot access, update or delete quizzes owned by other users
+- deleting a quiz deletes all related quiz questions through cascade behavior
+
+Quiz play state:
+
+- the backend stores generated quizzes and their related questions
+- the frontend receives all required quiz data through the quiz detail response
+- selected answers, current play state and result calculation are handled by the frontend
+
 ## Testing
 
 The project uses `pytest` and `pytest-django` for automated backend testing.
@@ -328,6 +381,7 @@ The authentication tests cover:
 - logout handling
 - refresh token blacklisting
 - access token refresh through HttpOnly cookies
+- public authentication endpoint behavior with stale access token cookies
 - invalid credentials
 - authentication error cases
 
@@ -431,17 +485,17 @@ POST /api/quizzes/
 
 The manual smoke test returned `201 Created` with one generated quiz and exactly 10 generated questions.
 
-### Current Test Counts - 60 Tests
+### Current Test Counts - 61 Tests
 
 | App           | Test Count |
 | ------------- | ---------: |
-| `auth_app`    |         19 |
+| `auth_app`    |         20 |
 | `quizzes_app` |         41 |
-| **Total**     |     **60** |
+| **Total**     |     **61** |
 
 ## Current Implementation Status
 
-The backend project currently includes the Django and Django REST Framework structure, completed authentication endpoints and the first implemented quiz generation endpoint.
+The backend project currently includes the Django and Django REST Framework structure, completed authentication endpoints and completed quiz management endpoints.
 
 Implemented so far:
 
@@ -505,6 +559,12 @@ Implemented so far:
 - validation that each generated answer exists in the related answer options
 - error logging for unexpected quiz creation failures
 - quiz creation API tests for YouTube URL validation and normalization
+- quiz list API endpoint for retrieving authenticated user-specific quizzes
+- quiz detail retrieve API endpoint for retrieving one owned quiz with nested questions
+- quiz detail update API endpoint for partially updating title and description
+- quiz detail delete API endpoint for permanently deleting owned quizzes
+- ownership protection for quiz list, detail, update and delete endpoints
+- frontend-managed quiz play state and result calculation based on quiz detail data
 - quiz generation service tests for service orchestration and temporary audio cleanup
 - YouTube service tests for `yt_dlp` options and audio path handling
 - Whisper service tests for model loading and transcript extraction
