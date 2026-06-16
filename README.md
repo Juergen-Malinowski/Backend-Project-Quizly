@@ -10,7 +10,7 @@ Run the following commands to set up the project locally.
 
 ```bash
 # Clone repository
-git clone <your-backend-repository-url>
+git clone https://github.com/Juergen-Malinowski/Backend-Project-Quizly.git
 
 # Open backend folder
 cd backend
