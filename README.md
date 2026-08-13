@@ -4,6 +4,10 @@ Quizly Backend is a Django REST Framework backend for the provided Quizly fronte
 
 The backend provides JWT authentication with HttpOnly cookies and quiz generation from YouTube URLs.
 
+## Deployment Notice
+
+> **The deployed portfolio demo is currently unable to generate new quizzes from YouTube URLs.** YouTube rejects requests originating from the Hetzner server IP through its automated bot-protection mechanism. As a result, `yt-dlp` cannot retrieve the YouTube audio, so the subsequent Whisper transcription and Gemini quiz generation cannot start. The complete quiz generation pipeline has been successfully tested locally in a real end-to-end smoke test.
+
 ## Setup
 
 Run the following commands to set up the project locally.
