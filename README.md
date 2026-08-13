@@ -8,6 +8,10 @@ The backend provides JWT authentication with HttpOnly cookies and quiz generatio
 
 > **The deployed portfolio demo is currently unable to generate new quizzes from YouTube URLs.** YouTube rejects requests originating from the Hetzner server IP through its automated bot-protection mechanism. As a result, `yt-dlp` cannot retrieve the YouTube audio, so the subsequent Whisper transcription and Gemini quiz generation cannot start. The complete quiz generation pipeline has been successfully tested locally in a real end-to-end smoke test.
 
+### Live Demo
+
+[Open the deployed Quizly demo](https://quizly.juergen-malinowski.de)
+
 ## Setup
 
 Run the following commands to set up the project locally.
